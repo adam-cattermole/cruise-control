@@ -127,7 +127,7 @@ public class MetricFetcherManager {
       for (int i = 0; i < _numMetricFetchers; i++) {
         MetricSampler metricSampler =
             config.getConfiguredInstance(KafkaCruiseControlConfig.METRIC_SAMPLER_CLASS_CONFIG, MetricSampler.class);
-        metricSampler.configure(config.originals());
+        metricSampler.configure(config.values());
         _metricSamplers.add(metricSampler);
       }
     }
