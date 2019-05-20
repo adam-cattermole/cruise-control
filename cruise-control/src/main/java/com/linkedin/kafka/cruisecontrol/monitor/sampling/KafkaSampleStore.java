@@ -275,6 +275,7 @@ public class KafkaSampleStore implements SampleStore {
     Collection<Node> nodes;
     try {
       nodes = adminClient.describeCluster().nodes().get();
+      LOG.info("nodes: {}",adminClient.describeCluster().nodes().get());
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e.getMessage());
     }
@@ -302,6 +303,9 @@ public class KafkaSampleStore implements SampleStore {
       String topic = entry.getKey();
       TopicDescription topicDescription;
       try {
+        LOG.info("topic: {}", topic);
+        LOG.info("topic-value: {}",entry.getValue());
+        LOG.info("topic-desc: {}", entry.getValue().get());
         topicDescription = entry.getValue().get();
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException(e.getMessage());
