@@ -60,6 +60,7 @@ import scala.collection.Seq;
 
 import static com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils.ensureNoPartitionUnderPartitionReassignment;
 import static com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils.ensureTopicNotUnderPartitionReassignment;
+import static java.lang.Thread.sleep;
 
 /**
  * The sample store that implements the {@link SampleStore}. It stores the partition metric samples and broker metric
@@ -305,6 +306,13 @@ public class KafkaSampleStore implements SampleStore {
       try {
         LOG.info("topic: {}", topic);
         LOG.info("topic-value: {}",entry.getValue());
+        int attempt = 0;
+        while (!entry.getValue().isDone()) {
+          sleep(1000 << attempt);
+          if (++attempt == 10) {
+            break;
+          }
+        }
         LOG.info("topic-desc: {}", entry.getValue().get());
         topicDescription = entry.getValue().get();
       } catch (InterruptedException | ExecutionException e) {
