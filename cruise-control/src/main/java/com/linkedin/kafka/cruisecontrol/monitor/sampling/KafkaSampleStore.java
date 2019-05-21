@@ -242,8 +242,8 @@ public class KafkaSampleStore implements SampleStore {
                          replicationFactor, _partitionSampleStoreTopicPartitionCount);
       ensureTopicCreated(kafkaZkClient, adminZkClient, adminClient, topics.keySet(), _brokerMetricSampleStoreTopic, brokerSampleRetentionMs,
                          replicationFactor, _brokerSampleStoreTopicPartitionCount);
-      maybeIncreaseTopicReplicationFactor(kafkaZkClient, adminClient, replicationFactor,
-                                          new HashSet<>(Arrays.asList(_partitionMetricSampleStoreTopic, _brokerMetricSampleStoreTopic)));
+//      maybeIncreaseTopicReplicationFactor(kafkaZkClient, adminClient, replicationFactor,
+//                                          new HashSet<>(Arrays.asList(_partitionMetricSampleStoreTopic, _brokerMetricSampleStoreTopic)));
     } finally {
       KafkaCruiseControlUtils.closeKafkaZkClientWithTimeout(kafkaZkClient);
       KafkaCruiseControlUtils.closeAdminClientWithTimeout(adminClient);
