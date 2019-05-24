@@ -44,6 +44,8 @@ import org.apache.kafka.common.config.ConfigDef;
 
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.kafka.common.config.ConfigDef.Range.atLeast;
 import static org.apache.kafka.common.config.ConfigDef.Range.between;
@@ -52,6 +54,7 @@ import static org.apache.kafka.common.config.ConfigDef.Range.between;
  * The configuration class of Kafka Cruise Control.
  */
 public class KafkaCruiseControlConfig extends AbstractConfig {
+  private static final Logger LOG = LoggerFactory.getLogger(KafkaCruiseControlConfig.class);
   private static final String DEFAULT_FAILED_BROKERS_ZK_PATH = "/CruiseControlBrokerList";
   // We have to define this so we don't need to move every package to scala src folder.
   private static final String DEFAULT_ANOMALY_NOTIFIER_CLASS = NoopNotifier.class.getName();
@@ -1299,6 +1302,11 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
 
   @Override
   public <T> T getConfiguredInstance(String key, Class<T> t) {
+    LOG.info("originals(): {}", originals());
+    LOG.info("originals.RECONNECT_BACKOFF_MS: {}", originals().get(RECONNECT_BACKOFF_MS_CONFIG));
+    LOG.info("values(): {}", values());
+    LOG.info("values.RECONNECT_BACKOFF_MS: {}", values().get(RECONNECT_BACKOFF_MS_CONFIG));
+    LOG.info("this: {}", this);
     T o = super.getConfiguredInstance(key, t);
     if (o instanceof CruiseControlConfigurable) {
       ((CruiseControlConfigurable) o).configure(originals());
