@@ -132,6 +132,11 @@ public class RackAwareGoal extends AbstractGoal {
     return true;
   }
 
+  @Override
+  public boolean canAddBrokerHelp() {
+    return false;
+  }
+
   /**
    * Check if requirements of this goal are not violated if this action is applied to the given cluster state,
    * false otherwise.

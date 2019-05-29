@@ -9,7 +9,18 @@ package com.linkedin.kafka.cruisecontrol.exception;
  */
 public class OptimizationFailureException extends KafkaCruiseControlException {
 
+  private boolean tryAddBroker;
+
   public OptimizationFailureException(String message) {
+    this(message, false);
+  }
+
+  public OptimizationFailureException(String message, boolean tryAddBroker) {
     super(message);
+    this.tryAddBroker = tryAddBroker;
+  }
+
+  public boolean tryAddBroker() {
+    return tryAddBroker;
   }
 }

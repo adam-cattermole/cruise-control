@@ -424,6 +424,11 @@ public class KafkaAssignerEvenRackAwareGoal implements Goal {
   }
 
   @Override
+  public boolean canAddBrokerHelp() {
+    return false;
+  }
+
+  @Override
   public ClusterModelStatsComparator clusterModelStatsComparator() {
     return new EvenRackAwareGoalStatsComparator();
   }

@@ -17,6 +17,7 @@ import com.linkedin.kafka.cruisecontrol.config.KafkaCruiseControlConfig;
 import com.linkedin.kafka.cruisecontrol.detector.AnomalyDetector;
 import com.linkedin.kafka.cruisecontrol.detector.notifier.AnomalyType;
 import com.linkedin.kafka.cruisecontrol.exception.KafkaCruiseControlException;
+import com.linkedin.kafka.cruisecontrol.exception.OptimizationFailureException;
 import com.linkedin.kafka.cruisecontrol.executor.ExecutionProposal;
 import com.linkedin.kafka.cruisecontrol.executor.Executor;
 import com.linkedin.kafka.cruisecontrol.async.progress.OperationProgress;
@@ -90,6 +91,9 @@ public class KafkaCruiseControl {
   private static final String VERSION;
   private static final String COMMIT_ID;
 
+  private static final String DEFAULT_TEST_RACK;
+  private static final String DEFAULT_TEST_HOST;
+
   // Referenced similar method to get software version in Kafka code.
   static {
     Properties props = new Properties();
@@ -101,6 +105,8 @@ public class KafkaCruiseControl {
     VERSION = props.getProperty("version", "unknown").trim();
     COMMIT_ID = props.getProperty("commitId", "unknown").trim();
     LOG.info("COMMIT INFO: " + VERSION + "---" + COMMIT_ID);
+    DEFAULT_TEST_RACK = "TEST-RACK";
+    DEFAULT_TEST_HOST = "TEST-HOST";
   }
   /**
    * Construct the Cruise Control
@@ -924,15 +930,52 @@ public class KafkaCruiseControl {
 
       Set<Integer> excludedBrokersForReplicaMove = excludeRecentlyRemovedBrokers ? executorState.recentlyRemovedBrokers()
                                                                                  : Collections.emptySet();
+      try {
+        LOG.info("Try optimize");
+        return _goalOptimizer.optimizations(clusterModel,
+                  goalsByPriority,
+                  operationProgress,
+                  requestedExcludedTopics,
+                  excludedBrokersForLeadership,
+                  excludedBrokersForReplicaMove,
+                  isTriggeredByGoalViolation,
+                  requestedDestinationBrokerIds);
+      } catch (OptimizationFailureException ofe) {
+        LOG.info("Caught OptimizationFailureException");
+        if (ofe.tryAddBroker() && clusterModel.brokers().size() < _config.getInt(
+            KafkaCruiseControlConfig.NUM_BROKERS_MAXIMUM_CONFIG)) {
+          LOG.info("Cluster model Brokers: {}", clusterModel.brokers());
+          // We have exposed _loadMonitor.getCapacityInfo, so let us set up the values so we can retrieve defaults
+          int brokerId =  clusterModel.brokers().size();
 
-      return _goalOptimizer.optimizations(clusterModel,
-                                          goalsByPriority,
-                                          operationProgress,
-                                          requestedExcludedTopics,
-                                          excludedBrokersForLeadership,
-                                          excludedBrokersForReplicaMove,
-                                          isTriggeredByGoalViolation,
-                                          requestedDestinationBrokerIds);
+          // Create new rack for broker
+          if (clusterModel.rack(DEFAULT_TEST_RACK) == null) {
+            LOG.info("Create new rack: {}", DEFAULT_TEST_RACK);
+            clusterModel.createRack(DEFAULT_TEST_RACK);
+          }
+
+          LOG.info("Create new broker: {}, {}, {}", DEFAULT_TEST_RACK, DEFAULT_TEST_HOST, brokerId);
+          // Create new broker
+          clusterModel.createBroker(
+                  DEFAULT_TEST_RACK,
+                  DEFAULT_TEST_HOST,
+                  brokerId,
+                  _loadMonitor.getCapacityInfo(DEFAULT_TEST_RACK, DEFAULT_TEST_HOST, brokerId),
+                  false);
+          return getProposals(clusterModel,
+                  goalsByPriority,
+                  operationProgress,
+                  allowCapacityEstimation,
+                  requestedExcludedTopics,
+                  excludeRecentlyDemotedBrokers,
+                  excludeRecentlyRemovedBrokers,
+                  isTriggeredByGoalViolation,
+                  requestedDestinationBrokerIds);
+        } else {
+          LOG.info("Not adding additional brokers - throwing");
+          throw ofe;
+        }
+      }
     }
   }
 

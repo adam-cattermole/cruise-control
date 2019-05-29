@@ -80,6 +80,12 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
   public static final String CLIENT_ID_CONFIG = CommonClientConfigs.CLIENT_ID_CONFIG;
 
   /**
+   * <code>num.brokers.maximum</code>
+   */
+  public static final String NUM_BROKERS_MAXIMUM_CONFIG = "num.brokers.maximum";
+  public static final String NUM_BROKERS_MAXIMUM_DOC = "The number of brokers that we can scale up to";
+
+  /**
    * <code>send.buffer.bytes</code>
    */
   public static final String SEND_BUFFER_CONFIG = CommonClientConfigs.SEND_BUFFER_CONFIG;
@@ -1293,6 +1299,12 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
                 KafkaTopicConfigProvider.class.getName(),
                 ConfigDef.Importance.LOW,
                 TOPIC_CONFIG_PROVIDER_CLASS_DOC)
+        .define(NUM_BROKERS_MAXIMUM_CONFIG,
+                ConfigDef.Type.INT,
+                100,
+                atLeast(1),
+                ConfigDef.Importance.LOW,
+                NUM_BROKERS_MAXIMUM_DOC)
         .withClientSslSupport()
         .withClientSaslSupport();
   }

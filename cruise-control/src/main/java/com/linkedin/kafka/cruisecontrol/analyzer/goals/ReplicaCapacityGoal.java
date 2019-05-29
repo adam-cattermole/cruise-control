@@ -99,6 +99,11 @@ public class ReplicaCapacityGoal extends AbstractGoal {
     return true;
   }
 
+  @Override
+  public boolean canAddBrokerHelp() {
+    return true;
+  }
+
   /**
    * This is a hard goal; hence, the proposals are not limited to dead broker replicas in case of self-healing.
    * Get brokers that the rebalance process will go over to apply balancing actions to replicas they contain.
@@ -111,6 +116,8 @@ public class ReplicaCapacityGoal extends AbstractGoal {
   protected SortedSet<Broker> brokersToBalance(ClusterModel clusterModel) {
     return clusterModel.brokers();
   }
+
+
 
   /**
    * This is a hard goal; hence, the proposals are not limited to dead broker replicas in case of self-healing.
@@ -153,7 +160,7 @@ public class ReplicaCapacityGoal extends AbstractGoal {
                               + "broker: %d.", name(), excludedReplicasInBroker.size(), _balancingConstraint.maxReplicasPerBroker()));
       }
     }
-
+    
     // Sanity check: total replicas in the cluster cannot be more than the allowed replicas in the cluster.
     long maxReplicasInCluster = _balancingConstraint.maxReplicasPerBroker() * clusterModel.aliveBrokers().size();
     if (totalReplicasInCluster > maxReplicasInCluster) {
@@ -161,7 +168,7 @@ public class ReplicaCapacityGoal extends AbstractGoal {
           String.format("[%s] Total replicas in cluster: %d exceeds the maximum allowed replicas in cluster: %d (Alive "
                             + "brokers: %d, Allowed number of replicas per broker: %d).",
                         name(), totalReplicasInCluster, maxReplicasInCluster, clusterModel.aliveBrokers().size(),
-                        _balancingConstraint.maxReplicasPerBroker()));
+                        _balancingConstraint.maxReplicasPerBroker()), canAddBrokerHelp());
     }
   }
 
@@ -213,7 +220,7 @@ public class ReplicaCapacityGoal extends AbstractGoal {
       if (numBrokerReplicas > _balancingConstraint.maxReplicasPerBroker()) {
         throw new OptimizationFailureException(
             String.format("[%s] Replicas in broker %d exceeds the maximum allowed number of replicas per broker: %d.",
-                          name(), numBrokerReplicas, _balancingConstraint.maxReplicasPerBroker()));
+                          name(), numBrokerReplicas, _balancingConstraint.maxReplicasPerBroker()), canAddBrokerHelp());
       }
     }
   }
@@ -266,6 +273,7 @@ public class ReplicaCapacityGoal extends AbstractGoal {
         }
         LOG.debug("Failed to move replica {} to any broker in {}.", replica, eligibleBrokers);
       }
+
     }
   }
 

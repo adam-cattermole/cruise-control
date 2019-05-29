@@ -183,6 +183,11 @@ public class PreferredLeaderElectionGoal implements Goal {
   }
 
   @Override
+  public boolean canAddBrokerHelp() {
+    return false;
+  }
+
+  @Override
   public void configure(Map<String, ?> configs) {
 
   }

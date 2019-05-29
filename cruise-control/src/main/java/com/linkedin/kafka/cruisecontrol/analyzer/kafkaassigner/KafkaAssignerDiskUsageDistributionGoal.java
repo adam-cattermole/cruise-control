@@ -487,6 +487,11 @@ public class KafkaAssignerDiskUsageDistributionGoal implements Goal {
     return (inSameRack || rackAware) && sameRole;
   }
 
+  @Override
+  public boolean canAddBrokerHelp() {
+    return false;
+  }
+
   private NavigableSet<ReplicaWrapper> sortReplicasAscend(BrokerAndSortedReplicas bas, Set<String> excludedTopics) {
     NavigableSet<ReplicaWrapper> sortedReplicas = new TreeSet<>();
     bas.sortedReplicas().forEach(r -> {

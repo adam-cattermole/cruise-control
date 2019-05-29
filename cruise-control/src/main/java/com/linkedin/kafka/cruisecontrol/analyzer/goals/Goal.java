@@ -116,6 +116,11 @@ public interface Goal extends CruiseControlConfigurable {
   boolean isHardGoal();
 
   /**
+   * True if increasing number of brokers could help this goal
+   */
+  boolean canAddBrokerHelp();
+
+  /**
    * A comparator that compares two cluster model stats.
    */
   interface ClusterModelStatsComparator extends Comparator<ClusterModelStats>, Serializable {

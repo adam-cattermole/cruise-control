@@ -98,7 +98,7 @@ public abstract class AbstractGoal implements Goal {
       if (comparator.compare(statsAfterOptimization, statsBeforeOptimization) < 0) {
         throw new OptimizationFailureException("Optimization for Goal " + name() + " failed because the optimized"
                                                + "result is worse than before. Detail reason: "
-                                               + comparator.explainLastComparison());
+                                               + comparator.explainLastComparison(), canAddBrokerHelp());
       }
     }
     return _succeeded;
@@ -126,6 +126,11 @@ public abstract class AbstractGoal implements Goal {
    * they contain.
    */
   protected abstract SortedSet<Broker> brokersToBalance(ClusterModel clusterModel);
+
+  @Override
+  public boolean canAddBrokerHelp() {
+    return false;
+  }
 
   /**
    * Check if requirements of this goal are not violated if this action is applied to the given cluster state,

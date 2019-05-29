@@ -418,6 +418,13 @@ public class LoadMonitor {
   }
 
   /**
+   *
+   */
+  public BrokerCapacityInfo getCapacityInfo(String rack, String host, int brokerId) {
+    return _brokerCapacityConfigResolver.capacityForBroker(rack, host, brokerId);
+  }
+
+  /**
    * Get the most recent cluster load model before the given timestamp.
    *
    * @param now The current time in millisecond.
